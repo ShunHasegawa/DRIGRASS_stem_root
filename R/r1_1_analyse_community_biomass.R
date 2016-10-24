@@ -93,4 +93,43 @@ plot_diag(bl12r_r_m1)
 
 
 ## summary df
+names(comm_biom_ed)
+smmry_comm_biom_ttl   <- comm_biom_ed %>% 
+  mutate(ab_mass = ab_mass / 1000,                                   # unit mg- > g
+         bl_mass_0_10  = -bl_mass_0_10 / 1000,                       # plot downwards; unit mg- > g
+         bl_mass_10_20 = -bl_mass_10_20 / 1000) %>%                  # plot downwards; unit mg- > g
+  gather(variable, value, ab_mass, bl_mass_0_10, bl_mass_10_20) %>%  # reshape to a long format
+  group_by(treatment, variable) %>%                                  # summarise by group
+  summarise_each(funs(M = mean, SE = se, N = get_n), value) %>%      # get mean, SE and n
+  ungroup()
 
+ttl_ab  <-  filter(smmry_comm_biom_ttl, variable == "ab_mass")                          # df for positive values (abvoe)
+ttl_bl1 <-  filter(smmry_comm_biom_ttl, variable == "bl_mass_0_10")                     # df for negative vluaes (below)
+ttl_bl2 <-  filter(smmry_comm_biom_ttl, variable == "bl_mass_10_20") %>%                # df for 10-20cm, mean is correct, but SE has to be adjusted as the barplot is stacked
+  left_join(transmute(ttl_bl1, treatment, bl1 = M), by = "treatment") %>%               # bind with df for 0-10cm
+  transmute(treatment, variable, M, N, SEmin = M + bl1 - SE, SEmax = M + bl1 + SE) %>%  # SE has to be drawn from where the box for 10-20cm was stacked under the 0-10cm
+  bind_rows(ttl_bl1) %>% 
+  mutate(variable = factor(variable, levels = c("bl_mass_0_10", "bl_mass_10_20"))) %>% 
+  arrange(variable)                                                                     # order matters when making stacked barplots. Bars are stacked as a variable appears in rows
+
+fig_comm_biom <- ggplot(smmry_comm_biom_ttl, aes(x = treatment, y = M, fill = variable, col = treatment)) +
+  labs(x = NULL, y = expression(Biomass~(g~plot^'-1'))) +
+  geom_bar(data = ttl_ab , stat = "identity") +
+  geom_bar(data = ttl_bl2, stat = "identity") +
+  geom_errorbar(data = ttl_ab, 
+                aes(ymin = M - SE, ymax = M + SE), 
+                width = .3, col = "black", linetype = "solid") +
+  geom_errorbar(data = ttl_bl1, 
+                aes(ymin = M - SE, ymax = M + SE),
+                width = .3, col = "black", linetype = "solid", 
+                position = position_dodge(.5)) +
+  geom_errorbar(data = ttl_bl2, 
+                aes(ymin = SEmin, ymax = SEmax), 
+                width = .3, col = "black", linetype = "solid", 
+                position = position_dodge(-.5)) +
+  scale_fill_grey(start = .4) +
+  science_theme +
+  theme(legend.position = "right",
+        legend.key.width = unit(.2, "inches"))
+fig_comm_biom
+ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 3)
