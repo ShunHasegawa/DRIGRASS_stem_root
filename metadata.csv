@@ -1,0 +1,17 @@
+folder,file,variable,unit,description
+Data,spp_above_below_biomass_2015sep.csv,,,This is extracted and formatted from September 2015 harvest biomass data.xlsx. This stores biomass data for each species from a hole sampling event in Septermber 2015
+Data,spp_above_below_biomass_2015sep.csv,plot,,plot
+Data,spp_above_below_biomass_2015sep.csv,subplot,,core location within each plot; L (left) or R (right)
+Data,spp_above_below_biomass_2015sep.csv,type,,type of biomass. Some species are sorted by live or dead. But some species are not (total)
+Data,spp_above_below_biomass_2015sep.csv,above_community,mg plot-1,above ground biomass for each species per plot
+Data,spp_above_below_biomass_2015sep.csv,above_single,mg plot-1,above ground biomass of an individual plant that was harvested intact. It roos are also weighed and scanned for morphology
+Data,spp_above_below_biomass_2015sep.csv,below_single,mg plot-1,below ground biomass of an individual plant that was harvested intact. It was scanned for morphology
+Data,below_biomass_perPlot_2015spr.csv,,,This is extracted and formatted from September 2015 harvest biomass data.xlsx. This stores biomass data of roots for each plot from a hole sampling event in Septermber 2015
+Data,below_biomass_perPlot_2015spr.csv,plot,,plot
+Data,below_biomass_perPlot_2015spr.csv,subplot,,core location within each plot; L (left) or R (right)
+Data,below_biomass_perPlot_2015spr.csv,attached_root,mg plot-1,biomass of roots attached to above-ground community
+Data,below_biomass_perPlot_2015spr.csv,non_attached_root_0_10cm,mg per sub soil sample?,biomass of roots that were not attached to above-ground at a depth of 0-10 cm in subsample of soil
+Data,below_biomass_perPlot_2015spr.csv,scaled_non_attached_root_0_10cm,mg plot-1,the above root biomass is scaled up to a plot level
+Data,below_biomass_perPlot_2015spr.csv,non_attached_root_10_20cm,mg per sub soil sample?,biomass of roots that were not attached to above-ground at a depth of 0-10 cm in subsample of soil
+Data,below_biomass_perPlot_2015spr.csv,scaled_non_attached_root_10_20cm,mg plot-1,the above root biomass is scaled up to a plot level
+Data,root_traits_sep2015.csv,,,renamed from Root trait (scans) Sept 2015 sample holes.xlsx and saved as a csv. This is results of analysis of scanned roots by Rhizo from a hole sampling event in Sepember 2015
