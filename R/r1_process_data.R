@@ -60,9 +60,11 @@ root_trait_d <- raw_rt_trait %>%
 root_trait_d$spp[root_trait_d$spp == "Brome"] <- "Bromus"     # correct name
 
 
-## merge with sp biomass
-root_trait_d <- select(spp_biom, -above_community, -sr_ratio) %>% 
-  right_join(root_trait_d, by = c("plot", "subplot", "spp"))
+## merge with sp biomass and treatment
+root_trait <- select(spp_biom, -above_community, -sr_ratio) %>% 
+  right_join(root_trait_d, by = c("plot", "subplot", "spp")) %>% 
+  left_join(treat_d, by = "plot") %>% 
+  ungroup()
 
 
 
