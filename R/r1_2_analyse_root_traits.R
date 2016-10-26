@@ -5,8 +5,9 @@ names(root_trait)
 
 
 raw_root_trait_byDC <- root_trait %>% 
-  select(treatment, herb, plot, subplot, spp, ends_with("single"), AvgDiam, Tips, 
-         Forks, starts_with("L"), starts_with("SA"), -LenPerVol) %>% 
+  select(root_trait, treatment, herb, plot, subplot, spp, 
+         ends_with("single"), AvgDiam, Tips, Forks, 
+         starts_with("L"), starts_with("SA"), -LenPerVol)
   gather(variable, value, -treatment, -herb,-plot, -subplot, -spp, 
          -ends_with("single")) %>% 
   mutate(value = value / below_single) %>%                                  # standerdise by root mass
@@ -47,3 +48,76 @@ source("R/r1_2.4_root_tips.R")    # root tips
 
 # check newly generated procced dfs
 ls(pattern = "prcssd_root_LSA|prcssd_root_trait_byDC")
+
+
+
+# summary table -----------------------------------------------------------
+
+## by diameter class
+summary(raw_root_LSA)             # raw 
+summary(prcssd_root_LSA5)         # processed
+
+
+## by plant; total L, SA, tips and forks
+
+summary(raw_root_trait_byDC)      # row
+summary(prcssd_root_trait_byDC1)  # processed
+
+
+## raw data by plants 
+raw_root_LSA_byPlant <- raw_root_LSA %>% 
+  filter(dmclass == 19) %>%                                                        # cumulative sum of L and SA (L.cum, SA.cum)
+  right_join(raw_root_trait_byDC, by = c("treatment", "herb", "plot", "subplot", 
+                                         "spp")) %>% 
+  ungroup() %>% 
+  select(treatment, plot, subplot, spp, above_single, below_single, L.cum, SA.cum,
+         Forks, Tips) %>% 
+  rename(total_L = L.cum, total_SA = SA.cum) %>% 
+  arrange(spp, plot, subplot)
+
+## processes data by plants
+
+prcssd_root_LSA_byPlant <- prcssd_root_LSA5 %>% 
+  filter(dmclass == 19) %>% # cumulative sum of L and SA (L.cum, SA.cum)
+  left_join(prcssd_root_trait_byDC1, by = c("treatment", "herb", "plot", "subplot", 
+                                            "spp")) %>% 
+  ungroup() %>% 
+  select(treatment, plot, subplot, spp, above_single, below_single, L.cum, SA.cum,
+         Forks, Tips) %>% 
+  rename(total_L = L.cum, total_SA = SA.cum) %>% 
+  arrange(spp, plot, subplot)
+
+
+
+## plot summary
+smmry_root_trait_byPlot <- prcssd_root_LSA_byPlant %>% 
+  group_by(treatment, plot, spp) %>% 
+  summarise_each(funs(mean(., na.rm = TRUE)),
+                 total_L, total_SA, Forks, Tips) %>% 
+  select(treatment, plot, spp,starts_with("total_L"), starts_with("total_SA"), 
+         starts_with("Forks"), starts_with("Tips")) %>% 
+  arrange(spp, plot)
+
+
+## treatment summary
+smmry_root_trait_byRain <- smmry_root_trait_byPlot %>% 
+  group_by(treatment, spp) %>% 
+  summarise_each(funs(M  = mean(., na.rm = TRUE),
+                      SE = se(., na.rm = TRUE),
+                      N  = get_n),
+                 total_L, total_SA, Forks, Tips) %>% 
+  select(treatment, spp, starts_with("total_L"), starts_with("total_SA"), 
+         starts_with("Forks"), starts_with("Tips")) %>% 
+  arrange(spp, treatment)
+
+
+## species summary
+smmry_root_trait_bySpp <- prcssd_root_LSA_byPlant %>% ## for sp comparisons, subplot/plot don't matter. so treat all subplots as an independent
+  group_by(spp) %>% 
+  summarise_each(funs(M  = mean(., na.rm = TRUE),
+                      SE = se(., na.rm = TRUE),
+                      N  = get_n),
+                 total_L, total_SA, Forks, Tips) %>% 
+  select(spp, starts_with("total_L"), starts_with("total_SA"), 
+         starts_with("Forks"), starts_with("Tips")) %>% 
+  arrange(spp)
