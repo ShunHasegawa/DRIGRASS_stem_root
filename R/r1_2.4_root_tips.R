@@ -39,27 +39,39 @@ dev.off()
 
 rootTip_m_l <- dlply(prcssd_root_trait_byDC1, .(spp), function(x){
   
+  print(unique(x$spp))
+  
   ## get ring mean
   d <- x %>% 
-    group_by(treatment, plot) %>% 
+    mutate(dmclass = 19) %>%                         # dmclas is added so that get_all_anova_tble function can be used
+    group_by(treatment, plot, spp, dmclass) %>% 
     summarise_each(funs(mean(., na.rm = TRUE)), Tips)
   
-  tryCatch({
-    m <- lm(log(Tips) ~ treatment, data = d)
-    pval <- anova(m)$`Pr(>F)`[1]
-    list(model = m, pval = pval)
-  }, 
-  error = function(e){
-    cat("ERROR :",conditionMessage(e), "\n")
-  })
+  ## run anova and get associated summary table
+  get_all_anova_tbl(d, log(Tips) ~ treatment)
+  
 })
 
-ldply(rootTip_m_l, function(x) x$pval) %>% 
-  filter(!is.na(V1))
+smmry_rootTips_byRain_tbl <- ldply(rootTip_m_l, function(x) x$summary_tbl) %>% 
+  mutate(trait = "tips", unit = "mg-1")
+filter(smmry_rootTips_byRain_tbl, P < 0.1)
 ### only Axnopus showed a significant treatment effect, with marginally
 ### significant Hypochaeris
 
 ax_rootTip_m1 <- rootTip_m_l[["Axonopus"]]$model
 anova(ax_rootTip_m1)
 plot_diag(ax_rootTip_m1)
-plot(lsmeans::lsmeans(ax_rootTip_m1, specs = "treatment"), comparisons = TRUE)
+
+
+# analysis to compare between spp -----------------------------------------
+
+create_trans_boxplot(Tips ~ spp, data = prcssd_root_trait_byDC1)
+spcomp_rootTip_m1 <- lmer(log(Tips) ~ spp + treatment + (1|plot/subplot), 
+                           data = prcssd_root_trait_byDC1)
+Anova(spcomp_rootTip_m1, test.statistic = "F")
+smmry_rootTip_tbl <- get_all_anova_tbl_bySpp(model    = spcomp_rootTip_m1,
+                                              .data    = prcssd_root_trait_byDC1,
+                                              variable = "Tips") %>% 
+  mutate(trait = "tips", unit = "mg-1") %>%
+  select(trait, unit, F, P, everything()) 
+smmry_rootTip_tbl

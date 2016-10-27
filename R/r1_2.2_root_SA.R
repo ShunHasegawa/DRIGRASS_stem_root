@@ -66,37 +66,25 @@ dev.off()
 
 rootSA_m_l <- dlply(prcssd_root_LSA5, .(spp, dmclass), function(x){
   
-  # get plot mean
+  print(paste(unique(x$spp), unique(x$dmclass)))
+  
+  ## get plot mean
   d <- x %>% 
-    group_by(treatment, plot) %>% 
+    group_by(treatment, plot, spp, dmclass) %>% 
     summarise_each(funs(mean(., na.rm = TRUE)), SA.cum)
   
-  print(paste(unique(x$spp), unique(x$dmclass)))
-  tryCatch({
-    m <- lm(log(SA.cum) ~ treatment, data = d)
-    pval <- anova(m)$`Pr(>F)`[1]
-    list(model = m, pval = pval)
-  }, 
-  error = function(e){
-    cat("ERROR :",conditionMessage(e), "\n")
-  })
+  get_all_anova_tbl(.data = d, formula = log(SA.cum) ~ treatment)
+  
 })
 
-plot_rootSA_pval <- ldply(rootSA_m_l, function(x) x$pval) %>% 
-  filter(!is.na(V1)) %>% 
-  ggplot(., aes(x = dmclass, y = V1)) +
-  labs(y = expression(italic(P))) +
-  geom_point()+
-  geom_hline(yintercept = .05, col = "red") +
-  facet_wrap(~ spp)
-plot_rootSA_pval
+smmry_rootSA_byRain_tbl <- ldply(rootSA_m_l, function(x) x$summary_tbl) %>% 
+  mutate(trait = "surface area", unit = "mm2 mg-1")
+filter(smmry_rootSA_byRain_tbl, P < 0.1)
 ### only first 3 classes of Axonopus was significnat
 
 ax_rootSA_m1 <- rootSA_m_l[["Axonopus.1"]]$model
 anova(ax_rootSA_m1)
 plot_diag(ax_rootSA_m1)
-
-plot(lsmeans::lsmeans(ax_rootSA_m1, specs = "treatment"), comparisons = TRUE)
 
 
 
@@ -134,4 +122,16 @@ filter(prcssd_root_LSA5, dmclass == 19) %>%
   ggplot(., aes(x = spp, y = log(SA.cum))) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+## summary table by spp
+
+## diameter class doesn't matter, so just use 19
+smmry_rootSA_tbl <- get_all_anova_tbl_bySpp(model = spcomp_rootSA_m_l[[19]]$model,
+                                            .data = filter(prcssd_root_LSA5, dmclass == 19),
+                                            variable = "SA.cum") %>% 
+  mutate(trait = "surface area", unit = "mm2 mg-1") %>%
+  select(trait, unit, F, P, everything())                   
+smmry_rootSA_tbl
+
 

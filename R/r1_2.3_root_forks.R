@@ -34,33 +34,43 @@ dev.off()
 
 rootFork_m_l <- dlply(raw_root_trait_byDC, .(spp), function(x){
   
+  print(unique(x$spp))
   ## get plot mean
   d <- x %>% 
-    group_by(treatment, plot) %>% 
+    mutate(dmclass = 19) %>%                         # dmclas is added so that get_all_anova_tble function can be used
+    group_by(treatment, plot, spp, dmclass) %>% 
     summarise_each(funs(mean(., na.rm = TRUE)), Forks)
   
-  tryCatch({
-    m <- lm(log(Forks) ~ treatment, data = d)
-    pval <- anova(m)$`Pr(>F)`[1]
-    list(model = m, pval = pval)
-  }, 
-  error = function(e){
-    cat("ERROR :",conditionMessage(e), "\n")
-  })
+  get_all_anova_tbl(d, log(Forks) ~ treatment)
+  
 })
 
-ldply(rootFork_m_l, function(x) x$pval) %>% 
-  filter(!is.na(V1))
+
+smmry_rootForks_byRain_tbl <- ldply(rootFork_m_l, function(x) x$summary_tbl) %>% 
+  mutate(trait = "forks", unit = "mg-1")
+filter(smmry_rootForks_byRain_tbl, P < 0.1)
 ### only Axnopus showed a significant treatment effect; Senecio was marginally
 ### significant at .06
 
 ax_rootFork_m1 <- rootFork_m_l[["Axonopus"]]$model
 anova(ax_rootFork_m1)
 plot_diag(ax_rootFork_m1)
-plot(lsmeans::lsmeans(ax_rootFork_m1, specs = "treatment"), comparisons = TRUE)
 
 snc_rootFork_m1 <- rootFork_m_l[["Senecio"]]$model
 anova(snc_rootFork_m1)
 plot_diag(snc_rootFork_m1)
-plot(lsmeans::lsmeans(snc_rootFork_m1, specs = "treatment"), comparisons = TRUE)
 
+
+
+
+# analysis to compare between spp -----------------------------------------
+
+create_trans_boxplot(Forks ~ spp, data = raw_root_trait_byDC)
+spcomp_rootFork_m1 <- lmer(log(Forks) ~ spp + treatment + (1|plot/subplot), data = raw_root_trait_byDC)
+Anova(spcomp_rootFork_m1, test.statistic = "F")
+smmry_rootFork_tbl <- get_all_anova_tbl_bySpp(model    = spcomp_rootFork_m1,
+                                              .data    = raw_root_trait_byDC,
+                                              variable = "Forks") %>% 
+  mutate(trait = "forks", unit = "mg-1") %>%
+  select(trait, unit, F, P, everything()) 
+smmry_rootFork_tbl

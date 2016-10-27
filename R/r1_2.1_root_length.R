@@ -68,30 +68,22 @@ dev.off()
 
 rootL_m_l <- dlply(prcssd_root_LSA3, .(spp, dmclass), function(x){
   
-  # get plot mean
+  print(paste(unique(x$spp), unique(x$dmclass)))
+  
+  ## get plot mean
   d <- x %>% 
-    group_by(treatment, plot) %>% 
+    group_by(treatment, plot, spp, dmclass) %>% 
     summarise_each(funs(mean(., na.rm = TRUE)), L.cum)
   
-  print(paste(unique(x$spp), unique(x$dmclass)))
-  tryCatch({
-    m <- lm(sqrt(L.cum) ~ treatment, data = d)
-    pval <- anova(m)$`Pr(>F)`
-    list(model = m, pval = pval)
-  }, error = function(e){
-    cat("ERROR :",conditionMessage(e), "\n")
-  })
+  ## run anova, post-hoc and generate summary table
+  get_all_anova_tbl(.data = d, formula = sqrt(L.cum) ~ treatment)
+  
 })
 
 
-plot_rootL_pval <- ldply(rootL_m_l, function(x) x$pval) %>% 
-  filter(!is.na(V1)) %>% 
-  ggplot(., aes(x = dmclass, y = V1)) +
-  labs(y = expression(italic(P))) +
-  geom_point()+
-  geom_hline(yintercept = .05, col = "red") +
-  facet_wrap(~ spp)
-plot_rootL_pval
+smmry_rootL_byRain_tbl <- ldply(rootL_m_l, function(x) x$summary_tbl) %>% 
+  mutate(trait = "length", unit = "mm mg-1")
+filter(smmry_rootL_byRain_tbl, P < 0.1)
 ### only Axnopus showed a significant treatment effect; diameter class don't
 ### appear to matter too much
 
@@ -99,7 +91,6 @@ plot_rootL_pval
 ax_rootL_m1 <- rootL_m_l[["Axonopus.19"]]$model
 anova(ax_rootL_m1)
 plot_diag(ax_rootL_m1)
-plot(lsmeans::lsmeans(ax_rootL_m1, specs = "treatment"), comparisons = TRUE)
 
 
 
@@ -107,7 +98,7 @@ plot(lsmeans::lsmeans(ax_rootL_m1, specs = "treatment"), comparisons = TRUE)
 # analysis to compare spp ----------------------------------------------------
 
 
-## The above anlsysis showed that diameter classes don't matter too much. So
+## The above anlysis showed that diameter classes don't matter too much. So
 ## just use the cumulative sum at DC 19.
 create_trans_boxplot(L.cum ~ treatment * spp, 
                      data = filter(prcssd_root_LSA3, dmclass == 19))
@@ -140,3 +131,11 @@ filter(prcssd_root_LSA3, dmclass == 19) %>%
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
+## diameter class doesn't matter, so just use 19
+smmry_rootL_tbl <- get_all_anova_tbl_bySpp(model = spcomp_rootL_m_l[[19]]$model,
+                                            .data = filter(prcssd_root_LSA3, dmclass == 19),
+                                            variable = "L.cum") %>% 
+  mutate(trait = "length", unit = "mm mg-1") %>%
+  select(trait, unit, F, P, everything())                   
+smmry_rootL_tbl

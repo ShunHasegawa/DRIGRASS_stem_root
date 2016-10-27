@@ -59,7 +59,7 @@ plot_diag(abr_rxh_m1)
 
 ## the above analysis showed no herb effect, so use the complete dataset
 create_trans_boxplot(ab_ratio ~ treatment, data = comm_biom_ed)
-abr_r_m1 <- lm(log(ab_ratio) ~ treatment * herb, data = comm_biom_ed)
+abr_r_m1 <- lm(log(ab_ratio) ~ treatment, data = comm_biom_ed)
 Anova(abr_r_m1, test.statistic = "F")
 plot_diag(abr_r_m1)
 
@@ -133,3 +133,56 @@ fig_comm_biom <- ggplot(smmry_comm_biom_ttl, aes(x = treatment, y = M, fill = va
         legend.key.width = unit(.2, "inches"))
 fig_comm_biom
 ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 3)
+
+
+
+
+# summary table -----------------------------------------------------------
+
+# raw 
+summary(comm_biom)
+comm_biom <- select(comm_biom, 
+                    treatment, herb, plot, subplot, side, everything())
+
+
+# summary by rain x herb
+summary(combio_rxh)
+
+names(combio_rxh)
+smmry_com_biom_tble_byRxH <- combio_rxh %>%
+  group_by(treatment, herb) %>% 
+  summarise_each(funs(M = mean, SE = se, N = get_n), -plot) %>% 
+  select(treatment, herb, starts_with("total"), starts_with("ab_mass"), 
+         starts_with("bl_mass_"), starts_with("bl_mass_0"),
+         starts_with("bl_mass_10"), starts_with("ab_ratio"))
+
+
+# summary by rain fall
+summary(comm_biom_ed)
+
+smmry_com_biom_tble_byR <- comm_biom_ed %>% 
+  group_by(treatment) %>% 
+  summarise_each(funs(M = mean, SE = se, N = get_n), -herb, -plot) %>% 
+  select(treatment, starts_with("total"), starts_with("ab_mass"), 
+         starts_with("bl_mass_"), starts_with("bl_mass_0"),
+         starts_with("bl_mass_10"), starts_with("ab_ratio"))
+
+
+# save 
+all_comm_biom_tbl_l <- list('community_biom_raw'                 = comm_biom,
+                            'community_biom_smmry_byRainxHerb' = smmry_com_biom_tble_byRxH,
+                            'community_biom_smmry_byRain'      = smmry_com_biom_tble_byR)
+
+# save as csv
+l_ply(names(all_comm_biom_tbl_l), function(x){
+  fname <- paste0("Output/Tables/summary_csv/", x, ".csv")
+  write.csv(all_comm_biom_tbl_l[[x]], fname, row.names = FALSE)
+})
+
+
+# save as excel
+get_excel_tble_comm_biom <- function(){
+  writeWorksheetToFile(file  = "Output/Tables/summary_community_biom.xlsx",
+                       data  = all_comm_biom_tbl_l[1],
+                       sheet = names(all_comm_biom_tbl_l)[1])
+}
