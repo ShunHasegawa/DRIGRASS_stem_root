@@ -37,6 +37,8 @@ Output/Table/summary_csv,root_trait_raw_byDC.csv,L,mm mg-1,root length by root m
 Output/Table/summary_csv,root_trait_raw_byDC.csv,SA,mm2 mg-1,root surface area  by root mass
 Output/Table/summary_csv,root_trait_raw_byDC.csv,L.cum,mm  mg-1,cummulative sum of L by diameter classes
 Output/Table/summary_csv,root_trait_raw_byDC.csv,SA.cum,mm2  mg-1,cummulative sum of SA by diameter classes
+Output/Table/summary_csv,root_trait_raw_byDC.csv,lower_d,mm,lower end of root diameter in a diameter class
+Output/Table/summary_csv,root_trait_raw_byDC.csv,upper_d,mm,upper end of root diameter in a diameter class
 Output/Table/summary_csv,root_trait_processed_byDC.csv,,,outliers are removed from raw_byDC.csv
 Output/Table/summary_csv,root_trait_raw_byPlant.csv,,,raw data for root traits for individual plant
 Output/Table/summary_csv,root_trait_raw_byPlant.csv,treatment,,see above

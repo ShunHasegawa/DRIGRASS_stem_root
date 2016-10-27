@@ -27,6 +27,7 @@ raw_root_LSA <- raw_root_trait_byDC %>%
   arrange(dmclass) %>%                                                          # make sure the rows ordered by diameter class before getting cumulative sum
   mutate(L.cum  = cumsum(L),                                                    # get cumulative sum for length
          SA.cum = cumsum(SA)) %>%                                               # get cumulative sum for SA
+  left_join(diameter_classification, by = c("dmclass" = "DiameterClass")) %>%   # merge with diameter classification
   arrange(plot, subplot, spp, dmclass) %>% 
   droplevels(.)
 

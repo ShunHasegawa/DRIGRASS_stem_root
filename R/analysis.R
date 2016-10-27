@@ -4,9 +4,10 @@ source("R/functions.R")
 
 ## process data
 source("R/r1_process_data.R")
-summary(comm_biom)               # community above/belowground biomass
-summary(root_trait)              # root traits (length, surface area etc.) with associated shoot and root mass
-summary(spp_biom)                # shoot and root biomass by spp
+summary(comm_biom)                # community above/belowground biomass
+summary(root_trait)               # root traits (length, surface area etc.) with associated shoot and root mass
+summary(diameter_classification)  # diameter classification
+summary(spp_biom)                 # shoot and root biomass by spp
 
 
 ## analysis
