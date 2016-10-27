@@ -15,3 +15,59 @@ Data,below_biomass_perPlot_2015spr.csv,scaled_non_attached_root_0_10cm,mg plot-1
 Data,below_biomass_perPlot_2015spr.csv,non_attached_root_10_20cm,mg per sub soil sample?,biomass of roots that were not attached to above-ground at a depth of 0-10 cm in subsample of soil
 Data,below_biomass_perPlot_2015spr.csv,scaled_non_attached_root_10_20cm,mg plot-1,the above root biomass is scaled up to a plot level
 Data,root_traits_sep2015.csv,,,renamed from Root trait (scans) Sept 2015 sample holes.xlsx and saved as a csv. This is results of analysis of scanned roots by Rhizo from a hole sampling event in Sepember 2015
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,,,"This store the summary results of anova to test treatment effects on root trati (length, surface area, forks and tips) for each plant species with means and associated Ses. Where there is a significant effect at P < 0.05, a posthoc test was conducted. The results of the test is shown alongside parentheses "
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,trait,,root trait
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,unit,,unit of root trait
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,F,,F value given by anova with DF in parentheses
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,P,,P value given by anova
+Output/Table/summary_csv,root_trait_anova_smmry_byRain.csv,Ambient,,mean (SE) of ambient treatment
+Output/Table/summary_csv,root_trait_anova_smmry_bySpp.csv,,,"This store the summary results of anova to test species difference in root trati (length, surface area, forks and tips). Where there is a significant effect at P < 0.05, a posthoc test was conducted. The results of the test is shown alongside parentheses "
+Output/Table/summary_csv,root_trait_anova_smmry_bySpp.csv,trait,,root trait
+Output/Table/summary_csv,root_trait_anova_smmry_bySpp.csv,unit,,unit of root trait
+Output/Table/summary_csv,root_trait_anova_smmry_bySpp.csv,F,,F value given by anova with DF in parentheses
+Output/Table/summary_csv,root_trait_anova_smmry_bySpp.csv,P,,P value given by anova
+Output/Table/summary_csv,root_trait_raw_byDC.csv,,,raw data for root traits at different diameter classes
+Output/Table/summary_csv,root_trait_raw_byDC.csv,treatment,,rainfall treatment
+Output/Table/summary_csv,root_trait_raw_byDC.csv,herb,,"herbivore treatment, although not analysed"
+Output/Table/summary_csv,root_trait_raw_byDC.csv,plot,,
+Output/Table/summary_csv,root_trait_raw_byDC.csv,subplot,,subplot or holes within each plot
+Output/Table/summary_csv,root_trait_raw_byDC.csv,dmclass,,root diameter class
+Output/Table/summary_csv,root_trait_raw_byDC.csv,spp,,species
+Output/Table/summary_csv,root_trait_raw_byDC.csv,L,mm mg-1,root length by root mass
+Output/Table/summary_csv,root_trait_raw_byDC.csv,SA,mm2 mg-1,root surface area  by root mass
+Output/Table/summary_csv,root_trait_raw_byDC.csv,L.cum,mm  mg-1,cummulative sum of L by diameter classes
+Output/Table/summary_csv,root_trait_raw_byDC.csv,SA.cum,mm2  mg-1,cummulative sum of SA by diameter classes
+Output/Table/summary_csv,root_trait_processed_byDC.csv,,,outliers are removed from raw_byDC.csv
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,,,raw data for root traits for individual plant
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,treatment,,see above
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,herb,,see above
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,plot,,see above
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,subplot,,see above
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,spp,,see above
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,above_single,mg,below groud biomass for an individual plant
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,below_single,mg,above groud biomass for an individual plant
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,total_L,mm mg-1,"total root surface area by root mass. Same as SA.cum at diameter class 19 ni raw_byDC.csv. Diameter class 20 often contains odd values, as such was not included."
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,total_SA,mm2 mg-1,"total root length by root mass. Same as L.cum at diameter class 19 ni raw_byDC.csv. Diameter class 20 often contains odd values, as such was not included."
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,Forks,,number of forks or branching
+Output/Table/summary_csv,root_trait_raw_byPlant.csv,Tips,,number of tips or root ends
+Output/Table/summary_csv,root_trait_processed_byPlant.csv,,,outliers are removed from raw_byPlant.csv
+Output/Table/summary_csv,root_trait_smmry_byPlot.csv,,,root trais are sumamrised by plot. Refer to raw_byPlant.csv for variable descriptions
+Output/Table/summary_csv,root_trait_smmry_byRain.csv,,,root traits are sumamrised by rainfall treatment Refer to raw_byPlant.csv for variable descriptions
+Output/Table/summary_csv,root_trait_smmry_bySpp.csv,,,root traits are sumamrised by speciees Refer to raw_byPlant.csv for variable descriptions
+Output/Table/,summary_root_traits.xlsx,,,"the following csv files are stored in this single excel file with corresponding sheet names: anova_smmry_byRain.csv, anova_smmry_bySpp.csv, processed_byDC.csv, processed_byPlant.csv, raw_byDC.csv, raw_byPlant.csv, smmry_byPlot.csv, smmry_byRain.csv, smmry_bySpp.csv"
+Output/Table/summary_csv,community_biom_raw.csv,,,raw data for community biomass
+Output/Table/summary_csv,community_biom_raw.csv,treatment,,see above
+Output/Table/summary_csv,community_biom_raw.csv,herb,,see above
+Output/Table/summary_csv,community_biom_raw.csv,plot,,see above
+Output/Table/summary_csv,community_biom_raw.csv,subplot,,see above
+Output/Table/summary_csv,community_biom_raw.csv,side,,
+Output/Table/summary_csv,community_biom_raw.csv,ab_mass,mg,above ground biomass for a community
+Output/Table/summary_csv,community_biom_raw.csv,bl_mass_0_10,mg,below ground biomass at a depth of 0-10cm for a community
+Output/Table/summary_csv,community_biom_raw.csv,bl_mass_10_20,mg,below ground biomass at a depth of 10-20cm for a community
+Output/Table/summary_csv,community_biom_raw.csv,bl_mass,mg,total below ground mass for a community
+Output/Table/summary_csv,community_biom_raw.csv,bl_10_20_ratio,,bl_mass_0_10:bl_mass_10_20 ratio
+Output/Table/summary_csv,community_biom_raw.csv,ab_ratio,,above:below biomass ratios
+Output/Table/summary_csv,community_biom_raw.csv,total,mg,total biomass (sum of above and below biomass)
+Output/Table/summary_csv,community_biom_smmry_byRain.csv,,,summary data for community biomass by rainfall treatment. Refere to community_biom_raw.csv for descriptions for variables
+Output/Table/summary_csv,community_biom_smmry_byRainxHerb.csv,,,summary data for community biomass by rainfall and herbivore treatment. Refere to community_biom_raw.csv for descriptions for variables
+Output/Table/,summary_community_biom.xlsx,,,"the following csv files are stored in this single excel file with corresponding sheet names: community_biom_raw.csv, community_biom_smmry_byRain.csv, community_biom_smmry_byRainxHerb.csv"
