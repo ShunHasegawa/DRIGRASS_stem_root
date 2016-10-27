@@ -43,5 +43,5 @@ source("R/r1_2.1_root_length.R")       # root length
 source("R/r1_2.2_root_SA.R")           # root surface area
 source("R/r1_2.3_root_forks.R")        # root forks
 source("R/r1_2.4_root_tips.R")         # root tips
-source("R/r1_2.5_shoot_root_ratio.R")  # shoot:root ratios
+source("R/r1_2.5_stem_root_ratio.R")   # shoot:root ratios
 
