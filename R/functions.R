@@ -100,3 +100,104 @@ science_theme <- theme(panel.border      = element_rect(color = "black"),
                        axis.text.x       = element_text(margin = margin(5)),
                        axis.text.y       = element_text(margin = margin(0, 5)),
                        axis.title.y      = element_text(margin = margin(0, 10)))
+
+
+
+## this performs anova by lm for given data and formula, and then generates 
+## summary table with assocaited stats
+
+get_all_anova_tbl <- function(.data, formula){
+  
+  tryCatch({                                                                      # some spp don't have sufficient replicates to run ANOVA and return error. tryCatch prevent error from stoping a loop
+    
+    
+    rm(m, anova_m, treat_p, fval, symb, symbol_d)
+    
+    ## perform anova
+    m <- lm(formula, data = .data)
+    
+    if(exists("m")){
+      anova_m <- anova(m)
+      treat_p <- anova_m$`Pr(>F)`[1]                                                # get P value for treatment
+      fval    <- paste0("F(", anova_m$Df[1], ",", anova_m$Df[2], ")=",              # get F value and associated DF
+                        round(anova_m$`F value`[1], 2))
+      
+      
+      ### post-hoc test when treatment was significant
+      if(!is.na(treat_p) & treat_p <= 0.05){
+        symb <- cld(glht(m, linfct = mcp(treatment = "Tukey")),                  # get symbols representing significant difference between treatmens 
+                    decreasing = TRUE)$mcletters$Letters
+        symbol_d <- data.frame(treatment = names(symb), symb, row.names = NULL) # store the result in df
+      } else {
+        symbol_d <- data.frame(treatment = unique(.data$treatment), symb = "")   # if there's no significant treatment effect, a post-hoc test is not performed
+      }
+    
+      
+    }
+  }, error = function(e){                                                         # action when error occurs
+    cat("ERROR :",conditionMessage(e), "\n")                                      # return error messgae
+  })
+  
+  
+  ## when above codes didn't generate the following object
+  if(!exists("m"))        m        <- NA
+  if(!exists("fval"))     fval     <- NA
+  if(!exists("treat_p"))  treat_p  <- NA
+  if(!exists("symbol_d")) symbol_d <- data.frame(treatment = unique(.data$treatment), symb = "")     # no post-hoc test
+    
+  
+  ## create summary table (Mean(SE) and significant symbols)
+  summary_tbl <- .data %>% 
+    group_by(treatment, spp, dmclass) %>%                                         # summarise for each group
+    summarise_each(funs(M = mean(., na.rm = TRUE), SE = se(., na.rm = TRUE)), -plot) %>%                            # mean and SE of original value
+    ungroup() %>%  
+    left_join(symbol_d, by = "treatment") %>%                                     # merge with a post-hoc table 
+    transmute(spp, dmclass, treatment,                                            # concatenate mean, se and symbols
+              value = paste0(round(M, 2), "(", round(SE, 2), ")", symb)) %>% 
+    spread(treatment, value) %>%                                                  # turn df to a wide format
+    mutate('F' = fval, P = round(treat_p, 3)) %>%                                 # add P-value for treatment
+    select(dmclass, spp, F, P, everything())                                      # reorder columns
+  
+  
+  l <- list('model' = m, 'summary_tbl' = summary_tbl)                             # store the model and summary table in a list for output           
+  return(l)
+}
+
+
+
+
+## this runs F test for given model, and perfome post-hoc test, and then 
+## generates summary table by spp
+get_all_anova_tbl_bySpp <- function(model, .data, variable){
+  # .data: data frame to create summary table
+  # variable: variable to be sumamrised
+  
+  
+  ## F test
+  anova_m <- Anova(model, test.statistic = "F")       # F test
+  pval    <- round(anova_m$`Pr(>F)`, 3)[1]            # pval
+  fval    <- paste0("F(",                             # F value and associated DFs
+                    round(anova_m$Df[1], 0), ",", 
+                    round(anova_m$Df.res[1], 0), ")=", 
+                    round(anova_m$F[1], 2))
+  
+  
+  ### post-hoc
+  symbols_d <- cld(lsmeans::lsmeans(model, spec = "spp"),  Letters = letters) %>%  # get symbols representing significant difference between treatmens 
+    select(spp, .group) %>% 
+    mutate(.group = gsub(" ", "", .group))
+  
+  
+  ## sumamry table
+  smmry_tbl <- .data %>% 
+    group_by(spp) %>%                                                               # summarise for each group
+    summarise_each_(funs(M = mean(., na.rm = TRUE), SE = se(., na.rm = TRUE)), variable) %>%   # mean and SE of original value
+    ungroup() %>% 
+    left_join(symbols_d, by = "spp") %>%                                            # merge with a post-hoc table 
+    transmute(spp, value = paste0(round(M, 2), "(", round(SE, 2), ")", .group)) %>% # concatenate mean, se and symbols
+    spread(spp, value) %>% 
+    mutate('F' = fval, P = pval)                                                    # add P and F value for spp
+  
+  
+  return(smmry_tbl)
+}
