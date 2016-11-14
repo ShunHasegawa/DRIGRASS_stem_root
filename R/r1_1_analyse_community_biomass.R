@@ -7,7 +7,7 @@ comm_biom_ed  <- comm_biom %>%
   select(-side) %>%                                        # remove unnecessary column
   group_by(treatment, herb, plot) %>%                      # summarise by plot
   summarise_each(funs(mean), -subplot)                     # get plot mean
-combio_rxh    <- filter(comm_biom_ed, treatment %in% c("Pulsed.drought", "Ambient", "Drought"))  # test rainfall x herb
+combio_rxh    <- filter(comm_biom_ed, treatment %in% c("Reduced.frequency", "Ambient", "Reduced"))  # test rainfall x herb
 combio_contrh <- filter(comm_biom_ed, herb == "Control")   # test rainfall; subset control-herb
 
 
