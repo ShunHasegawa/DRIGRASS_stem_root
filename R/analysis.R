@@ -10,7 +10,11 @@ summary(diameter_classification)  # diameter classification
 summary(spp_biom)                 # shoot and root biomass by spp
 
 
-## analysis
+## stat and figure
+theme_set(theme_bw())                                                 # set ggplot backgroud
+rain_cols <- c("green4", "dodgerblue3", "red", "palegreen", "plum3")  # colors to be used to plot rainfall treatments
+
+
 source("R/r1_1_analyse_community_biomass.R")       # analysis on community biomass
 source("R/r1_2_analyse_root_traits.R")             # analysis on root traits
 source("R/r1_2_1_create_smmry_tbl_root_traits.R")  # create summary table (.csv) based on the result of anslysis for root tratis

@@ -7,7 +7,7 @@ comm_biom_ed  <- comm_biom %>%
   select(-side) %>%                                        # remove unnecessary column
   group_by(treatment, herb, plot) %>%                      # summarise by plot
   summarise_each(funs(mean), -subplot)                     # get plot mean
-combio_rxh    <- filter(comm_biom_ed, treatment %in% c("Reduced.frequency", "Ambient", "Reduced"))  # test rainfall x herb
+combio_rxh    <- filter(comm_biom_ed, treatment %in% c("Reduced frequency", "Ambient", "Reduced"))  # test rainfall x herb
 combio_contrh <- filter(comm_biom_ed, herb == "Control")   # test rainfall; subset control-herb
 
 
@@ -128,6 +128,7 @@ fig_comm_biom <- ggplot(smmry_comm_biom_ttl, aes(x = treatment, y = M, fill = va
                 width = .3, col = "black", linetype = "solid", 
                 position = position_dodge(-.5)) +
   scale_fill_grey(start = .4) +
+  scale_color_manual(values = rain_cols, guide = FALSE) +
   science_theme +
   theme(legend.position = "right",
         legend.key.width = unit(.2, "inches"))
