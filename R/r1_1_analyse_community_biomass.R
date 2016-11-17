@@ -194,7 +194,7 @@ fig_comm_biom <- ggplot(smmry_comm_biom_ttl,
         legend.key.width = unit(.2, "inches"))
   
 fig_comm_biom
-ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 5)
+ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 4)
 
 
 
