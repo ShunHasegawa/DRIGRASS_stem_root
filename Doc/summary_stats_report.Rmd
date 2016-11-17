@@ -1,5 +1,5 @@
 ---
-title: "Biomass allocation stat summary for report"
+title: "Biomass allocation and plant traits -stat summary for report-"
 author: "Shun Hasegawa"
 date: "10/27/2016"
 output:
@@ -54,8 +54,24 @@ pander(summary_stt_tbl, caption = "Summary results of analysis on biomass alloca
 
 ## Biomass allocation
 
-```{r comm_biom_fig, echo=FALSE, fig.height=5, fig.width=5, results='hide', warning=FALSE, fig.cap="Community biomass (mean±SE) for above (ab_mass), below at 0-10 cm (bl_mass_0_10) and below at 10-20 cm (bl_mass_10_20) biomass"}
+```{r comm_biom_fig, echo=FALSE, fig.height=4, fig.width=5, results='hide', warning=FALSE, fig.cap="Community biomass (mean±SE) for above (ab_mass), below at 0-10 cm (bl_mass_0_10) and below at 10-20 cm (bl_mass_10_20) biomass"}
 fig_comm_biom
 ```
 
+
+## Plant traits
+
+```{r palnt_trait_bySpp_smmry_tbl, echo=FALSE, warning=FALSE}
+a <- smmry_anova_bySpp_tbl %>% 
+  gather(spp, value, -trait, -unit, -F, -P) %>% 
+  gather(variable, value2, -spp, -trait) %>% 
+  spread(trait, value2) %>% 
+  filter(!(spp != "Axonopus" & variable %in% c("F", "P", "unit"))) %>% 
+  mutate(variable = ifelse(variable == "value", spp, variable)) %>% 
+  select(-spp)
+
+pander(a,  justify = "right", split.table = Inf, caption = "Results of one-way ANOVA for species comparisons and summary with mean±SE. SE is NA when n < 2. Where there was a significant treatment effect at P < 0.05, post-hoc tests were performed. The results of post-hoc comparisons are shown by letters alongside parenthesis.")
+
+
+```
 
