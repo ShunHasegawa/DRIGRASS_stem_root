@@ -1,0 +1,61 @@
+---
+title: "Biomass allocation stat summary for report"
+author: "Shun Hasegawa"
+date: "10/27/2016"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(car)
+library(lmerTest)
+library(ggplot2)
+library(grid)
+library(pander)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(vegan)
+
+# knitr::opts_chunk$set(echo = TRUE, fig.path='Figs/DRIGRASS_plant_trait_', dev=c('pdf', 'png'), dpi = 600)
+knitr::opts_chunk$set(echo = TRUE)
+load("../Output/Data/all_obj.RData")
+theme_set(theme_bw()) 
+
+# function to generate anova table from lmer
+lmer_anova_tbl <- function(lmermod, ...){
+  a <- Anova(lmermod, test.statistic = "F")
+  panderOptions('round', c(2, 0, 0, 3))
+  if(any(a[, 4] <= 0.05)) emphasize.strong.cells(cbind(which(a[, 4] <= 0.05), 4))
+  emphasize.italics.cols(4)
+  pander(a,  justify = "right", ...)
+}
+
+
+lm_anova_tbl <- function(lmmod, ...){
+  a <- Anova(lmmod)
+  ap <- a$`Pr(>F)`[!is.na(a$`Pr(>F)`)]
+  panderOptions('round', c(2, 0, 2, 3))
+  if(any(ap <= 0.05)) emphasize.strong.cells(cbind(which(a[, 4] <= 0.05), 4))
+  emphasize.italics.cols(4)
+  pander(a,  justify = "right", ...)
+}
+
+
+```
+
+## Summary stats
+
+```{r smmry_stt_tbl, echo=FALSE, results='asis'}
+pander(summary_stt_tbl, caption = "Summary results of analysis on biomass allocation: above-ground biomass (ab_biom), below-ground biomass (bl_biom), total biomass (ttl_biom), above:below ratios (ab_rt), below-ground biomass allocation (0-10cm:10-20cm ratio; bl12_rt)")
+```
+
+
+## Biomass allocation
+
+```{r comm_biom_fig, echo=FALSE, fig.height=5, fig.width=5, results='hide', warning=FALSE, fig.cap="Community biomass (mean±SE) for above (ab_mass), below at 0-10 cm (bl_mass_0_10) and below at 10-20 cm (bl_mass_10_20) biomass"}
+fig_comm_biom
+```
+
+
