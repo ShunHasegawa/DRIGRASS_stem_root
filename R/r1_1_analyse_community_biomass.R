@@ -40,6 +40,55 @@ plot_diag(ttlb_r_m1)
 
 
 
+# above-ground biomass ----------------------------------------------------
+
+
+# . rain x herb -----------------------------------------------------------
+
+create_trans_boxplot(ab_mass ~ treatment * herb, data = comm_biom_ed)
+abb_rxh_m1 <- lm(ab_mass ~ treatment * herb, data = combio_rxh)
+Anova(abb_rxh_m1)
+plot_diag(abb_rxh_m1)
+
+
+
+
+# . rain ------------------------------------------------------------------
+
+## the above analysis showed no herb effect, so use the complete data set
+
+create_trans_boxplot(ab_mass ~ treatment, data = comm_biom_ed)
+abb_r_m1 <- lm(ab_mass ~ treatment, data = comm_biom_ed)
+Anova(abb_r_m1)
+plot_diag(abb_r_m1)
+
+
+
+
+# below-ground biomass ----------------------------------------------------
+
+
+# . rain x herb -----------------------------------------------------------
+
+create_trans_boxplot(bl_mass ~ treatment * herb, data = comm_biom_ed)
+blb_rxh_m1 <- lm(bl_mass^(1/3) ~ treatment * herb, data = combio_rxh)
+Anova(blb_rxh_m1)
+plot_diag(blb_rxh_m1)
+
+
+
+
+# . rain ------------------------------------------------------------------
+
+## the above analysis showed no herb effect, so use the complete data set
+
+create_trans_boxplot(bl_mass ~ treatment, data = comm_biom_ed)
+blb_r_m1 <- lm(bl_mass^(1/3) ~ treatment, data = comm_biom_ed)
+Anova(blb_r_m1)
+plot_diag(blb_r_m1)
+
+
+
 
 # above/below ratios ------------------------------------------------------
 
@@ -101,7 +150,8 @@ smmry_comm_biom_ttl   <- comm_biom_ed %>%
   gather(variable, value, ab_mass, bl_mass_0_10, bl_mass_10_20) %>%  # reshape to a long format
   group_by(treatment, variable) %>%                                  # summarise by group
   summarise_each(funs(M = mean, SE = se, N = get_n), value) %>%      # get mean, SE and n
-  ungroup()
+  ungroup() %>% 
+  droplevels()
 
 ttl_ab  <-  filter(smmry_comm_biom_ttl, variable == "ab_mass")                          # df for positive values (abvoe)
 ttl_bl1 <-  filter(smmry_comm_biom_ttl, variable == "bl_mass_0_10")                     # df for negative vluaes (below)
@@ -112,28 +162,39 @@ ttl_bl2 <-  filter(smmry_comm_biom_ttl, variable == "bl_mass_10_20") %>%        
   mutate(variable = factor(variable, levels = c("bl_mass_0_10", "bl_mass_10_20"))) %>% 
   arrange(variable)                                                                     # order matters when making stacked barplots. Bars are stacked as a variable appears in rows
 
-fig_comm_biom <- ggplot(smmry_comm_biom_ttl, aes(x = treatment, y = M, fill = variable, col = treatment)) +
-  labs(x = NULL, y = expression(Biomass~(g~plot^'-1'))) +
-  geom_bar(data = ttl_ab , stat = "identity") +
-  geom_bar(data = ttl_bl2, stat = "identity") +
-  geom_errorbar(data = ttl_ab, 
+fig_comm_biom <- ggplot(smmry_comm_biom_ttl, 
+                        aes(x = treatment, y = M, fill = variable, col = treatment)) +
+  labs(x = NULL, y = expression(Biomass~(g~plot^'-1'))) +         # axis labels
+  
+  geom_bar(data = ttl_ab , stat = "identity", size = .7) +        # bar plot for above-ground
+  geom_bar(data = ttl_bl2, stat = "identity", size = .7) +        # bar plot for below-ground
+  geom_errorbar(data = ttl_ab,                                    # error bar for above-ground
                 aes(ymin = M - SE, ymax = M + SE), 
                 width = .3, col = "black", linetype = "solid") +
-  geom_errorbar(data = ttl_bl1, 
+  geom_errorbar(data = ttl_bl1,                                   # error bar for below-ground (0-10cm)
                 aes(ymin = M - SE, ymax = M + SE),
                 width = .3, col = "black", linetype = "solid", 
                 position = position_dodge(.5)) +
-  geom_errorbar(data = ttl_bl2, 
+  geom_errorbar(data = ttl_bl2,                                   # error bar for below-ground (10-20cm)
                 aes(ymin = SEmin, ymax = SEmax), 
                 width = .3, col = "black", linetype = "solid", 
                 position = position_dodge(-.5)) +
-  scale_fill_grey(start = .4) +
+  
+  
+  scale_fill_grey(start = .4, labels = c("Above-ground",          # define colors and legends to fill bar plots for each depths
+                                         "Below-ground(0-10cm)",
+                                         "Below-ground(10-20cm)")) +
+  scale_y_continuous(limits = c(-15, 20),                         # yaxis tick labels
+                     breaks = seq(-15, 20, 5), 
+                     labels = abs(seq(-15, 20, 5))) +
+  scale_x_discrete(labels = gsub(" ", "\n",levels(smmry_comm_biom_ttl$treatment))) + # x axis tick label; replace " " with "\n" so that a new line is added
   scale_color_manual(values = rain_cols, guide = FALSE) +
   science_theme +
-  theme(legend.position = "right",
+  theme(legend.position = c(.25, .95),
         legend.key.width = unit(.2, "inches"))
+  
 fig_comm_biom
-ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 3)
+ggsavePP("Output/Figs/fig_comm_biom", fig_comm_biom, width = 5, height = 5)
 
 
 
@@ -187,3 +248,60 @@ get_excel_tble_comm_biom <- function(){
                        data  = all_comm_biom_tbl_l[1],
                        sheet = names(all_comm_biom_tbl_l)[1])
 }
+
+
+
+
+# summary stat table ------------------------------------------------------
+
+
+# . Rain x Herb -----------------------------------------------------------
+
+
+### store models in a list
+comm_biom_rxh_m_l <- list(ttl_biom = ttlb_rxh_m1,   # total biomass
+                          ab_biom  = abb_rxh_m1,    # above biomass
+                          bl_biom  = blb_rxh_m1,    # below biomass
+                          ab_rt    = abr_rxh_m1,    # above:below ratios
+                          bl12_rt  = bl12r_rxh_m1)  # below0-10:below10-20 ratios
+
+### bind anova results into a df                          
+rxh_tbl <- ldply(comm_biom_rxh_m_l, function(x){
+  tidy(Anova(x, test.statistic = "F")) %>% 
+    filter(grepl("herb", term))
+})
+
+
+
+
+# . Rain --------------------------------------------------------------------
+
+
+comm_biom_r_m_l <- list(ttl_biom = ttlb_r_m1,
+                       ab_biom  = abb_r_m1,
+                       bl_biom  = blb_r_m1,
+                       ab_rt    = abr_r_m1,
+                       bl12_rt  = bl12r_r_m1)
+r_tbl <- ldply(comm_biom_r_m_l, function(x){
+  tidy(Anova(x, test.statistic = "F")) %>% 
+    filter(term == "treatment")
+})
+
+
+
+
+
+# . merge -----------------------------------------------------------------
+
+
+summary_stt_tbl <- bind_rows(rxh_tbl, r_tbl) %>% 
+  select(.id, term, p.value) %>% 
+  mutate(p.value = ifelse(p.value <= .05, 
+                          as.character(get_star(p.value, dagger = FALSE)), "ns"),                                               # change pvalues to start marks
+         term = recode_factor(term, treatment = "Rain", herb = "Herbivore",   # relabel and reorder factors
+                              `treatment:herb` = "RxH")) %>% 
+  spread(term, p.value) %>% 
+  arrange(gsub(".*_", "", .id))
+summary_stt_tbl  
+write.csv(summary_stt_tbl, file = "Output/Tables/summary_stat_biomass_allocation.csv")  
+  
